@@ -51,6 +51,8 @@ const userSchema = new mongoose.Schema({
     }],
     resetPasswordToken: String,
     resetPasswordExpire: Date,
+    otp: String,
+    otpExpires: Date,
     createdAt: {
         type: Date,
         default: Date.now
@@ -71,6 +73,11 @@ userSchema.pre('save', async function(next) {
 // Method to compare password
 userSchema.methods.matchPassword = async function(enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Compare candidate password
+userSchema.methods.comparePassword = function(candidate) {
+    return bcrypt.compare(candidate, this.password);
 };
 
 const User = mongoose.models.User || mongoose.model('User', userSchema);
