@@ -1,45 +1,153 @@
-import TryCatch from "../middlewares/TryCatch.js";
-import { User } from "../models/User.js";
+import User from "../models/user.js";
 import jwt from "jsonwebtoken";
-import sendMail from "../middlewares/sendMail.js";
+import bcrypt from "bcryptjs";
+import { sendMail } from "../utils/sendMail.js";
 
-export const register = TryCatch(async (req, res) => {
-  const { name, email, password } = req.body;
+// Register user
+export const register = async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
 
-  let user = await User.findOne({ email });
+        // Check if user already exists
+        let user = await User.findOne({ email });
+        if (user) {
+            return res.status(400).json({
+                success: false,
+                message: "User already exists"
+            });
+        }
 
-  if (user) {
-    return res.status(400).json({ message: "User already exists" });
-  }
+        // Create new user
+        user = await User.create({
+            name,
+            email,
+            password
+        });
 
-  user = await User.create({ name, email, password });
+        // Generate verification token
+        const verificationToken = jwt.sign(
+            { id: user._id },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
 
-  const otp = Math.floor(1000 + Math.random() * 9000);
+        // Send verification email
+        await sendMail({
+            email: user.email,
+            subject: "Verify your email",
+            message: `Please click on the link to verify your email: ${process.env.FRONTEND_URL}/verify/${verificationToken}`
+        });
 
-  await sendMail(email, "OTP Verification", { name, otp });
+        res.status(201).json({
+            success: true,
+            message: "Registration successful. Please verify your email."
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
 
-  res.status(201).json({ message: "OTP sent to email", userId: user._id, otp });
-});
+// Verify user
+export const verifyUser = async (req, res) => {
+    try {
+        const { token } = req.body;
 
-export const verifyUser = TryCatch(async (req, res) => {
-  const { otp } = req.body;
-  res.status(200).json({ message: "Verified successfully" });
-});
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.id);
 
-export const loginUser = TryCatch(async (req, res) => {
-  const { email, password } = req.body;
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
 
-  const user = await User.findOne({ email });
+        user.isVerified = true;
+        await user.save();
 
-  if (!user || user.password !== password) {
-    return res.status(401).json({ message: "Invalid credentials" });
-  }
+        res.status(200).json({
+            success: true,
+            message: "Email verified successfully"
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
 
-  const token = jwt.sign({ id: user._id }, process.env.Jwt_Sec);
+// Login user
+export const loginUser = async (req, res) => {
+    try {
+        const { email, password } = req.body;
 
-  res.status(200).json({ message: "Login successful", token });
-});
+        // Check if user exists
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid credentials"
+            });
+        }
 
-export const myProfile = TryCatch(async (req, res) => {
-  res.status(200).json({ user: req.user });
-});
+        // Check if password matches
+        const isMatch = await user.comparePassword(password);
+        if (!isMatch) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid credentials"
+            });
+        }
+
+        // Generate token
+        const token = jwt.sign(
+            { id: user._id },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+
+        // Set cookie
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        });
+
+        res.status(200).json({
+            success: true,
+            message: "Login successful",
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            }
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+// Get user profile
+export const myProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).select('-password');
+        
+        res.status(200).json({
+            success: true,
+            user
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
