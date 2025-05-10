@@ -12,8 +12,8 @@ import fs from "fs";
 import userRoutes from './routes/user.js';
 import courseRoutes from './routes/course.js';
 import adminRoutes from './routes/admin.js';
-import aiRoutes from './routes/ai.js';
-import { apiLimiter, authLimiter, aiLimiter } from './middleware/rateLimiter.js';
+// import aiRoutes from './routes/ai.js';
+import { apiLimiter, authLimiter } from './middleware/rateLimiter.js';
 
 // Load environment variables
 dotenv.config();
@@ -32,7 +32,7 @@ app.use(helmet({
             scriptSrc: ["'self'", "'unsafe-inline'"],
             styleSrc: ["'self'", "'unsafe-inline'"],
             imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", "https://api.cohere.ai"]
+            connectSrc: ["'self'"]
         }
     }
 }));
@@ -66,7 +66,6 @@ if (!fs.existsSync(uploadsDir)) {
 app.use('/api/', apiLimiter);
 app.use('/api/user/login', authLimiter);
 app.use('/api/user/register', authLimiter);
-app.use('/api/ai', aiLimiter);
 
 // Health check route
 app.get("/", (req, res) => {
@@ -82,10 +81,10 @@ app.get("/", (req, res) => {
 app.use("/api/user", userRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/admin", adminRoutes);
-app.use("/api/ai", aiRoutes);
+// app.use("/api/ai", aiRoutes);
 
 // Connect to MongoDB
-mongoose.connect(process.env.DB)
+mongoose.connect(process.env.DB_URI)
     .then(() => console.log("✅ Connected to MongoDB"))
     .catch((err) => {
         console.error("❌ MongoDB connection error:", err);

@@ -1,41 +1,57 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import Navbar from './components/common/Navbar';
-import Footer from './components/common/Footer';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import store from './redux/store';
+import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import CoursesPage from './pages/CoursesPage';
-import CoursePage from './pages/CoursePage';
-import LessonPage from './pages/LessonPage';
-import QuizPage from './pages/QuizPage';
-import ProfilePage from './pages/ProfilePage';
+import CourseDetailPage from './pages/CourseDetailPage';
 import DashboardPage from './pages/DashboardPage';
+import ProfilePage from './pages/ProfilePage';
 import NotFoundPage from './pages/NotFoundPage';
-import LoginForm from './components/auth/LoginForm';
-import RegisterForm from './components/auth/RegisterForm';
-import CourseForm from './components/courses/CourseForm';
-import { CourseList } from './components/courses';
-import CourseDetail from './pages/CourseDetail';
-import Profile from './pages/Profile';
 
-const App = () => {
-  const { user } = useSelector((state) => state.auth);
+const ProtectedRoute = ({ children }) => {
+  const isAuthenticated = store.getState().auth.isAuthenticated;
+  return isAuthenticated ? children : <Navigate to="/login" />;
+};
 
+function App() {
   return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/courses" element={<CoursesPage />} />
-        <Route path="/courses/:id" element={<CoursePage />} />
-        <Route path="/lessons/:id" element={<LessonPage />} />
-        <Route path="/quizzes/:id" element={<QuizPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-      <Footer />
-    </Router>
+    <Provider store={store}>
+      <Router>
+        <div className="min-h-screen bg-gray-50">
+          <Navbar />
+          <main>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/courses" element={<CoursesPage />} />
+              <Route path="/courses/:id" element={<CourseDetailPage />} />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <DashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <ProfilePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </main>
+        </div>
+      </Router>
+    </Provider>
   );
 }
 

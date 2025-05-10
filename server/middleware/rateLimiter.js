@@ -1,29 +1,66 @@
 import rateLimit from 'express-rate-limit';
 
-// Limiter pour les requêtes d'authentification
-export const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 tentatives
-  message: 'Trop de tentatives de connexion, veuillez réessayer après 15 minutes'
+// Helper function to create rate limiters with consistent error format
+const createLimiter = (options) => {
+    return rateLimit({
+        ...options,
+        handler: (req, res) => {
+            res.status(429).json({
+                success: false,
+                message: options.message,
+                retryAfter: Math.ceil(options.windowMs / 1000 / 60) // Convert to minutes
+            });
+        },
+        standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+        legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+    });
+};
+
+// Authentication limiter (login, password reset)
+export const authLimiter = createLimiter({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // 5 attempts
+    message: 'Too many login attempts, please try again after 15 minutes'
 });
 
-// Limiter pour les requêtes API générales
-export const apiLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 100, // 100 requêtes par minute
-  message: 'Trop de requêtes, veuillez réessayer plus tard'
+// API general limiter
+export const apiLimiter = createLimiter({
+    windowMs: 60 * 1000, // 1 minute
+    max: 100, // 100 requests per minute
+    message: 'Too many requests, please try again later'
 });
 
-// Limiter pour les requêtes de création de compte
-export const registerLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 heure
-  max: 3, // 3 comptes par heure
-  message: 'Trop de comptes créés, veuillez réessayer après une heure'
-});
-
-// Stricter limiter for AI routes
-export const aiLimiter = rateLimit({
+// Registration limiter
+export const registerLimiter = createLimiter({
     windowMs: 60 * 60 * 1000, // 1 hour
-    max: 20, // Limit each IP to 20 requests per windowMs
+    max: 3, // 3 accounts per hour
+    message: 'Too many accounts created, please try again after an hour'
+});
+
+// AI routes limiter
+export const aiLimiter = createLimiter({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 20, // 20 requests per hour
     message: 'Too many AI requests, please try again after an hour'
+});
+
+// Course creation limiter (for instructors)
+export const courseCreationLimiter = createLimiter({
+    windowMs: 24 * 60 * 60 * 1000, // 24 hours
+    max: 5, // 5 courses per day
+    message: 'Too many courses created, please try again tomorrow'
+});
+
+// Lecture upload limiter
+export const lectureUploadLimiter = createLimiter({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 10, // 10 lectures per hour
+    message: 'Too many lectures uploaded, please try again after an hour'
+});
+
+// Review submission limiter
+export const reviewLimiter = createLimiter({
+    windowMs: 24 * 60 * 60 * 1000, // 24 hours
+    max: 10, // 10 reviews per day
+    message: 'Too many reviews submitted, please try again tomorrow'
 }); 

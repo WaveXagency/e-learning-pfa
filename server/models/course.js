@@ -18,16 +18,19 @@ const courseSchema = new mongoose.Schema({
     price: {
         type: Number,
         required: [true, 'Price is required'],
-        min: [0, 'Price cannot be negative']
+        min: [0, 'Price cannot be negative'],
+        default: 0
     },
     category: {
         type: String,
-        required: [true, 'Category is required']
+        required: [true, 'Category is required'],
+        enum: ['programming', 'design', 'business', 'marketing', 'music', 'other']
     },
     level: {
         type: String,
         enum: ['beginner', 'intermediate', 'advanced'],
-        required: true
+        required: true,
+        default: 'beginner'
     },
     image: {
         type: String,
@@ -44,6 +47,14 @@ const courseSchema = new mongoose.Schema({
         },
         video: {
             type: String,
+            required: true
+        },
+        duration: {
+            type: Number,
+            default: 0
+        },
+        order: {
+            type: Number,
             required: true
         }
     }],
@@ -79,13 +90,10 @@ const courseSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-    updatedAt: {
-        type: Date,
-        default: Date.now
+    status: {
+        type: String,
+        enum: ['draft', 'published', 'archived'],
+        default: 'draft'
     }
 }, {
     timestamps: true
@@ -109,7 +117,24 @@ courseSchema.methods.calculateAverageRating = function() {
     }
 };
 
-// Check if model exists before creating it
+// Add lecture with order
+courseSchema.methods.addLecture = function(lecture) {
+    const maxOrder = this.lectures.length > 0 
+        ? Math.max(...this.lectures.map(l => l.order))
+        : 0;
+    lecture.order = maxOrder + 1;
+    this.lectures.push(lecture);
+};
+
+// Remove lecture and reorder
+courseSchema.methods.removeLecture = function(lectureId) {
+    this.lectures = this.lectures.filter(lecture => lecture._id.toString() !== lectureId);
+    // Reorder remaining lectures
+    this.lectures.forEach((lecture, index) => {
+        lecture.order = index + 1;
+    });
+};
+
 const Course = mongoose.models.Course || mongoose.model('Course', courseSchema);
 
 export default Course; 

@@ -1,14 +1,16 @@
 import express from 'express';
-import { createCourse, addLecture } from '../controllers/admin.js';
 import { upload } from '../middleware/uploadFiles.js';
 import { isAuth, isAdmin } from '../middleware/auth.js';
 import {
+  createCourse,
+  addLecture,
+  deleteLecture,
   getUsers,
   getUserById,
   updateUser,
   deleteUser as deleteUserController,
   getStats
-} from '../controllers/admin.js';
+} from '../controllers/adminController.js';
 
 const router = express.Router();
 
@@ -18,6 +20,7 @@ router.use(isAdmin);
 
 router.post('/create/new', upload.single('image'), createCourse);
 router.post('/:courseId/lecture', upload.single('video'), addLecture);
+router.delete('/:courseId/lecture/:lectureId', deleteLecture);
 router.get('/users', getUsers);
 router.get('/users/:id', getUserById);
 router.put('/users/:id', updateUser);

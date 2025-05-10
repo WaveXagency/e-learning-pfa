@@ -2,19 +2,26 @@ import pkg from 'cohere-ai';
 const { CohereClient } = pkg;
 
 const cohere = new CohereClient({
-    token: process.env.COHERE_API_KEY
+    token: process.env.COHERE_API_KEY || 'dummy-key'  // Fallback for development
 });
 
 export const detectFraud = async (activity) => {
     try {
-        const response = await cohere.generate({
-            prompt: `Analyze the following user activity for potential fraudulent behavior:\n\n${JSON.stringify(activity)}`,
+        const response = await cohere.chat({
+            message: `Analyze the following user activity for potential fraudulent behavior:\n\n${JSON.stringify(activity)}`,
             model: 'command',
             temperature: 0.3,
             maxTokens: 200
         });
 
-        return response.generations[0].text;
+        const analysis = response.text;
+        const riskLevel = calculateRiskLevel(analysis);
+
+        return {
+            analysis,
+            riskLevel,
+            isHighRisk: riskLevel > 0.7
+        };
     } catch (error) {
         console.error('Error detecting fraud:', error);
         throw error;

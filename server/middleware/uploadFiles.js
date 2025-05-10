@@ -1,6 +1,7 @@
 import multer from "multer";
 import path from "path";
 import { v2 as cloudinary } from 'cloudinary';
+import fs from 'fs/promises';
 
 // Configure Cloudinary
 cloudinary.config({
@@ -9,9 +10,19 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+// Ensure uploads directory exists
+const ensureUploadsDir = async () => {
+    try {
+        await fs.access('uploads');
+    } catch {
+        await fs.mkdir('uploads');
+    }
+};
+
 // Configure storage
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
+    destination: async (req, file, cb) => {
+        await ensureUploadsDir();
         cb(null, "uploads/");
     },
     filename: (req, file, cb) => {
@@ -59,13 +70,36 @@ export const uploadVideo = multer({
     }
 });
 
+// Upload to Cloudinary
+export const uploadToCloudinary = async (file, folder = 'general') => {
+    try {
+        const result = await cloudinary.uploader.upload(file.path, {
+            folder,
+            resource_type: 'auto'
+        });
+        
+        // Delete local file after upload
+        await fs.unlink(file.path);
+        
+        return result;
+    } catch (error) {
+        // Clean up local file if upload fails
+        try {
+            await fs.unlink(file.path);
+        } catch (unlinkError) {
+            console.error('Error deleting local file:', unlinkError);
+        }
+        throw error;
+    }
+};
+
 // Error handling middleware
 export const handleUploadError = (err, req, res, next) => {
     if (err instanceof multer.MulterError) {
         if (err.code === 'LIMIT_FILE_SIZE') {
             return res.status(400).json({
                 success: false,
-                message: 'Fichier trop volumineux. Taille maximale: 5MB'
+                message: 'Fichier trop volumineux. Taille maximale: 5MB pour les images, 100MB pour les vidéos'
             });
         }
         return res.status(400).json({
@@ -73,5 +107,13 @@ export const handleUploadError = (err, req, res, next) => {
             message: err.message
         });
     }
+    
+    if (err.message.includes('Type de fichier non supporté')) {
+        return res.status(400).json({
+            success: false,
+            message: err.message
+        });
+    }
+    
     next(err);
 }; 

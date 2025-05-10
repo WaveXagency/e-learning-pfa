@@ -1,26 +1,28 @@
 {
   "name": "e-learning-platform-server",
   "version": "1.0.0",
-  "description": "E-learning Platform Server",
-  "license": "ISC",
-  "author": "",
-  "type": "module",
+  "description": "Backend server for the E-learning platform built with Node.js and Express.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
     "lint": "eslint .",
     "test": "jest"
   },
-  "devDependencies": {
-    "nodemon": "^2.0.22",
-    "eslint": "^9.26.0",
-    "jest": "^29.7.0"
-  },
+  "author": "WaveX",
+  "license": "ISC",
+  "keywords": [
+    "e-learning",
+    "nodejs",
+    "express",
+    "server",
+    "education"
+  ],
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.6.1",
-    "cohere-ai": "^4.0.0",
+    "cohere-ai": "^4.6.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
@@ -35,5 +37,9 @@
     "nodemailer": "^7.0.3",
     "uuid": "^11.1.0"
   },
-  "keywords": []
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "jest": "^29.7.0",
+    "nodemon": "^2.0.22"
+  }
 }
