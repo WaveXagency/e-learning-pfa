@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Provider } from 'react-redux';
 import store from './redux/store';
 import Navbar from './components/Navbar';
+import Chatbot from './components/Chatbot';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -49,6 +50,7 @@ function App() {
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </main>
+          <Chatbot />
         </div>
       </Router>
     </Provider>
