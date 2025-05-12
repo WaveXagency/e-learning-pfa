@@ -39,18 +39,18 @@ const Chatbot = () => {
       {/* Chat Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+        className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
       >
         {isOpen ? '✕' : '💬'}
       </button>
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="absolute bottom-20 right-0 w-96 h-[500px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+        <div className="absolute bottom-20 right-0 w-96 h-[500px] bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-purple-100">
           {/* Chat Header */}
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 text-white">
+          <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 p-4 text-white">
             <h3 className="text-lg font-semibold">E-Learning Assistant</h3>
-            <p className="text-sm text-indigo-100">Ask me anything about your courses!</p>
+            <p className="text-sm text-white/80">Ask me anything about your courses!</p>
           </div>
 
           {/* Messages Container */}
@@ -63,7 +63,7 @@ const Chatbot = () => {
                 <div
                   className={`max-w-[80%] rounded-2xl px-4 py-2 ${
                     message.type === 'user'
-                      ? 'bg-indigo-600 text-white rounded-br-none'
+                      ? 'bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 text-white rounded-br-none'
                       : 'bg-gray-100 text-gray-800 rounded-bl-none'
                   }`}
                 >
@@ -75,18 +75,18 @@ const Chatbot = () => {
           </div>
 
           {/* Input Form */}
-          <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200">
+          <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200 bg-white/50 backdrop-blur-sm">
             <div className="flex gap-2">
               <input
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 placeholder="Type your message..."
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+                className="flex-1 px-4 py-2 border border-purple-200 rounded-full focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 bg-white/80"
               />
               <button
                 type="submit"
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-full hover:opacity-90 transition-opacity"
+                className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 text-white px-6 py-2 rounded-full hover:opacity-90 transition-opacity shadow-md hover:shadow-lg"
               >
                 Send
               </button>

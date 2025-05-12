@@ -15,82 +15,106 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4 flex justify-between items-center shadow-lg fixed w-full top-0 z-50">
-      {/* Brand Logo */}
-      <div className="flex items-center">
-        <Link to="/" className="text-white text-2xl font-bold flex items-center hover:scale-105 transition-transform">
-          <span className="mr-2">🎓</span> E-Learning
-        </Link>
-      </div>
+    <nav className="glass-effect fixed w-full top-0 z-50 border-b border-white/20">
+      <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="flex justify-between items-center">
+          {/* Brand Logo */}
+          <Link to="/" className="flex items-center space-x-2 group">
+            <span className="text-3xl transform group-hover:rotate-12 transition-transform duration-300">🎓</span>
+            <span className="text-2xl font-bold gradient-text group-hover:scale-105 transition-transform duration-300">
+              E-Learning
+            </span>
+          </Link>
 
-      {/* Desktop Menu */}
-      <div className="hidden md:flex gap-6 items-center">
-        <Link to="/courses" className="text-white hover:text-indigo-200 px-3 py-2 rounded-lg transition-all duration-300 hover:bg-white/10">
-          Courses
-        </Link>
-
-        {user ? (
-          <>
-            <Link to="/dashboard" className="text-white hover:text-indigo-200 px-3 py-2 rounded-lg transition-all duration-300 hover:bg-white/10">
-              Dashboard
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center space-x-6">
+            <Link to="/courses" className="btn-secondary">
+              Courses
             </Link>
 
-            {/* Profile Dropdown */}
-            <div className="relative group">
-              <button className="text-white hover:text-indigo-200 px-3 py-2 rounded-lg transition-all duration-300 hover:bg-white/10 flex items-center">
-                {user.name} <span className="ml-2">▼</span>
-              </button>
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl hidden group-hover:block transform transition-all duration-300 origin-top">
-                <Link to="/profile" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 rounded-t-xl">Profile</Link>
-                <button
-                  onClick={handleLogout}
-                  className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-b-xl transition-colors duration-300"
-                >
-                  Logout
-                </button>
-              </div>
+            {user ? (
+              <>
+                <Link to="/dashboard" className="btn-secondary">
+                  Dashboard
+                </Link>
+
+                {/* Profile Dropdown */}
+                <div className="relative group">
+                  <button className="btn-secondary flex items-center space-x-2">
+                    <span className="text-lg">👤</span>
+                    <span>{user.name}</span>
+                    <span className="transform group-hover:rotate-180 transition-transform duration-300">▼</span>
+                  </button>
+                  <div className="absolute right-0 mt-2 w-48 glass-effect rounded-xl shadow-xl hidden group-hover:block transform transition-all duration-300 origin-top">
+                    <Link to="/profile" className="block px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 rounded-t-xl transition-colors duration-300">
+                      Profile
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-b-xl transition-colors duration-300"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="btn-secondary">
+                  Login
+                </Link>
+                <Link to="/register" className="btn-primary">
+                  Get Started
+                </Link>
+              </>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="md:hidden text-2xl focus:outline-none hover:scale-110 transition-transform"
+          >
+            {isMenuOpen ? '✕' : '☰'}
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden mt-4 glass-effect rounded-xl shadow-xl animate-slide-down">
+            <div className="px-4 py-2 space-y-2">
+              <Link to="/courses" className="block px-4 py-2 rounded-lg hover:bg-white/10 transition-colors">
+                Courses
+              </Link>
+              {user ? (
+                <>
+                  <Link to="/dashboard" className="block px-4 py-2 rounded-lg hover:bg-white/10 transition-colors">
+                    Dashboard
+                  </Link>
+                  <Link to="/profile" className="block px-4 py-2 rounded-lg hover:bg-white/10 transition-colors">
+                    Profile
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 text-red-500 rounded-lg hover:bg-red-50 transition-colors"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" className="block px-4 py-2 rounded-lg hover:bg-white/10 transition-colors">
+                    Login
+                  </Link>
+                  <Link to="/register" className="block px-4 py-2 rounded-lg hover:bg-white/10 transition-colors">
+                    Get Started
+                  </Link>
+                </>
+              )}
             </div>
-          </>
-        ) : (
-          <>
-            <Link to="/login" className="text-white hover:text-indigo-200 px-3 py-2 rounded-lg transition-all duration-300 hover:bg-white/10">
-              Login
-            </Link>
-            <Link to="/register" className="bg-white text-indigo-600 px-6 py-2 rounded-lg text-sm font-medium hover:bg-indigo-50 transition-all duration-300 shadow-md hover:shadow-lg">
-              Register
-            </Link>
-          </>
+          </div>
         )}
       </div>
-
-      {/* Mobile Menu Button */}
-      <div className="md:hidden">
-        <button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="text-white text-2xl focus:outline-none hover:scale-110 transition-transform"
-        >
-          {isMenuOpen ? '✕' : '☰'}
-        </button>
-      </div>
-
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className="absolute top-full left-0 w-full bg-gradient-to-r from-indigo-600 to-purple-600 flex flex-col items-center mt-2 py-4 shadow-xl md:hidden">
-          <Link to="/courses" className="text-white hover:text-indigo-200 px-4 py-3 w-full text-center hover:bg-white/10 transition-all duration-300">Courses</Link>
-          {user ? (
-            <>
-              <Link to="/dashboard" className="text-white hover:text-indigo-200 px-4 py-3 w-full text-center hover:bg-white/10 transition-all duration-300">Dashboard</Link>
-              <Link to="/profile" className="text-white hover:text-indigo-200 px-4 py-3 w-full text-center hover:bg-white/10 transition-all duration-300">Profile</Link>
-              <button onClick={handleLogout} className="text-red-300 hover:text-red-100 px-4 py-3 w-full text-center hover:bg-red-500/20 transition-all duration-300">Logout</button>
-            </>
-          ) : (
-            <>
-              <Link to="/login" className="text-white hover:text-indigo-200 px-4 py-3 w-full text-center hover:bg-white/10 transition-all duration-300">Login</Link>
-              <Link to="/register" className="text-white hover:text-indigo-200 px-4 py-3 w-full text-center hover:bg-white/10 transition-all duration-300">Register</Link>
-            </>
-          )}
-        </div>
-      )}
     </nav>
   );
 };
